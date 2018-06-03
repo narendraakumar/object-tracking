@@ -5,7 +5,7 @@ import numpy as np
 import random
 from collections import deque
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 # To keep track of all point where object visited
 center_points = deque()
 
