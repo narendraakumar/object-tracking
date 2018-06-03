@@ -21,13 +21,13 @@ while True:
     hsv = cv2.cvtColor(blur_frame, cv2.COLOR_BGR2HSV)
 
     # Define lower and upper range of hsv color to detect. Blue here
-    lower_blue = np.array([100, 50, 50])
+    lower_blue = np.array([100, 90, 50])
     upper_blue = np.array([140, 255, 255])
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
 
     # Make elliptical kernel
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15))
-
+    # import pdb;pdb.set_trace()
     # Opening morph(erosion followed by dilation)
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
 
@@ -40,27 +40,31 @@ while True:
 
         # Find center of contour and draw filled circle
         moments = cv2.moments(biggest_contour)
-        centre_of_contour = (int(moments['m10'] / moments['m00']), int(moments['m01'] / moments['m00']))
-        cv2.circle(frame, centre_of_contour, 5, (0, 0, 255), -1)
+        # import pdb;pdb.set_trace()
+        cx = int(moments['m10'] / moments['m00'])
+        cy = int(moments['m01'] / moments['m00'])
+        centre_of_contour = (cx,cy)
+        cv2.circle(frame, centre_of_contour, 9, (0, 0, 255), -1)
 
         # Bound the contour with circle
         ellipse = cv2.fitEllipse(biggest_contour)
-        cv2.ellipse(frame, ellipse, (0, 255, 255), 2)
+        cv2.ellipse(frame, ellipse, (255, 0, 255), 4)
 
         # Save the center of contour so we draw line tracking it
         center_points.appendleft(centre_of_contour)
-
+        print(centre_of_contour)
+        cv2.putText(frame,("{:.2f} {:.2f}".format(cx,cy)), (cx - 20, cy - 20),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 2)
     # Draw line from center points of contour
     for i in range(1, len(center_points)):
-        b = random.randint(230, 255)
+        b = random.randint(200, 255)
         g = random.randint(100, 255)
         r = random.randint(100, 255)
         if math.sqrt(((center_points[i - 1][0] - center_points[i][0]) ** 2) + (
-                (center_points[i - 1][1] - center_points[i][1]) ** 2)) <= 50:
-            cv2.line(frame, center_points[i - 1], center_points[i], (b, g, r), 4)
+                (center_points[i - 1][1] - center_points[i][1]) ** 2)) <= 40:
+            cv2.line(frame, center_points[i - 1], center_points[i], (0, 0, 255), 4)
 
     cv2.imshow('original', frame)
-    cv2.imshow('mask', mask)
+    # cv2.imshow('mask', mask)
 
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
